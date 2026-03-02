@@ -7,6 +7,7 @@ import { Message } from "ai";
 import Bubble from "./components/Bubble/Bubble";
 import PromptSuggestionsRow from "./components/Bubble/PromptSuggestion/PromptSuggestionsRow";
 import LoadingAnimation from "./components/LoadingBubble/loadingAnimation";
+
 const Home = () => {
   const {
     append,
@@ -16,7 +17,8 @@ const Home = () => {
     handleInputChange,
     handleSubmit,
   } = useChat();
-  const noMessages = true;
+  const noMessages = !messages || messages.length === 0;
+
   const handlePromptClick = (prompt: string) => {
     const msg = {
       id: crypto.randomUUID(),

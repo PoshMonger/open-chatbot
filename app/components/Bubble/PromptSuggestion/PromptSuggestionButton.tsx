@@ -1,5 +1,5 @@
 import React from "react";
-
+import "./PromptSuggestion.css";
 const PromptSuggestionButton = ({
   text,
   onClick,

@@ -1,0 +1,23 @@
+.prompt-suggestion-button{
+
+    margin: 8px;;
+    padding: 8px;
+    font-size: 16px;
+    border: none;
+    color: #000;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    width: 80%;
+    text-align: left;
+    border-radius: 20px;
+    background-color: #dbbd37;
+    cursor: pointer;
+}
+
+.prompt-suggestions-row{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}

@@ -1,6 +1,6 @@
 import React from "react";
 import PromptSuggestionButton from "./PromptSuggestionButton";
-
+import "./PromptSuggestion.css";
 const PromptSuggestionsRow = ({onPromptClick}: {onPromptClick: (prompt: string) => void}) => {
   const prompts = [
     "What is the best way to stay healthy?",
