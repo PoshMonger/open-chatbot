@@ -1,0 +1,13 @@
+---
+description: Chat API route – request/response and OpenAI/Astra usage
+globs: "app/api/chat/**/*.ts"
+alwaysApply: false
+---
+
+# Chat API Route
+
+- **Path**: `app/api/chat/route.ts` (Next App Router: only `route.ts` is the handler).
+- **Method**: POST. Body: `{ id, messages, trigger, messageId }`. `messages` are UIMessage (id, role, parts).
+- **Response**: Plain text stream (`Content-Type: text/plain; charset=utf-8`). Consumed by `TextStreamChatTransport` on the client.
+- **Flow**: Parse last message text → embed with OpenAI → vector search Astra → build system prompt with context → OpenAI chat (stream) → pipe delta content to response stream. Use `getTextFromMessage()` for both the latest message and when converting full `messages` to OpenAI format; filter out empty content.
+- **Astra**: Same client as seed – `db(endpoint, { token })`, then `collection(name)`. Documents have `content` and `$vector`; query with `find({}, { sort: { $vector }, limit })`, then `await cursor.toArray()`.

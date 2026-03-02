@@ -1,0 +1,36 @@
+---
+description: Smart Parrot – packages, types, and where they're used
+globs: "**/*.{ts,tsx,js}"
+alwaysApply: false
+---
+
+# Packages and Types
+
+## Core Packages
+
+| Package | Role | Where used |
+|---------|------|------------|
+| **next** | App + API (App Router) | App shell, routing; API lives in `app/api/**/route.ts`. |
+| **openai** | Embeddings + chat | `app/api/chat/route.ts` (embeddings + chat completions); `scripts/loadDb.ts` (embeddings only). |
+| **ai** | Chat UI protocol | `TextStreamChatTransport` in `app/page.tsx` (expects plain text stream from API); type `UIMessage` in `Bubble.tsx` and page. |
+| **@ai-sdk/react** | Chat state | `useChat()` in `app/page.tsx` – returns `sendMessage`, `messages`, `status`, `error`. No `append`/`handleSubmit`/`input` (use local state + `sendMessage({ text })`). |
+| **@datastax/astra-db-ts** | Vector DB | `app/api/chat/route.ts` (read: `db.collection().find` with `$vector`); `scripts/loadDb.ts` (create collection, insert documents with `content` + `$vector`). Auth: `db(endpoint, { token })`. |
+| **@langchain/textsplitters** | Chunking | `scripts/loadDb.ts` – `RecursiveCharacterTextSplitter` for splitting scraped text. |
+| **@langchain/community** | Web loader | `scripts/loadDb.ts` – `PuppeteerWebBaseLoader` for scraping URLs. |
+| **puppeteer** | Browser for scraping | Used by PuppeteerWebBaseLoader in seed. |
+| **dotenv** | Env vars | `scripts/loadDb.ts` via `import "dotenv/config"`. Next loads `.env` automatically for API. |
+
+## Important Types and Shapes
+
+- **UIMessage** (`ai`): `{ id, role, parts }`. `parts` = array of `{ type: 'text', text: string }` (and others). Use for rendering; no top-level `content`. Extract text in API with a helper that supports both `content` and `parts`.
+- **OpenAI chat payload**: `{ role: 'user'|'assistant'|'system', content: string }`. Convert UIMessage → this in the route via `getTextFromMessage(msg)`.
+- **Astra documents (this project)**: Stored as `{ content: string, $vector: number[] }`. Embedding dimension 1536 (text-embedding-3-small). Query with `find({}, { sort: { $vector: number[] }, limit: N })`.
+
+## Chat Transport
+
+- Use **TextStreamChatTransport** so the client accepts a **plain text stream** from the API. Do not use DefaultChatTransport unless the API returns the JSON event-stream format it expects. Our route returns `ReadableStream` of UTF-8 text.
+
+## Env Vars
+
+- **Chat + Seed**: `OPENAI_API_KEY`, `ASTRA_API_ENDPOINT`, `ASTRA_DB_APPLICATION_TOKEN`, `ASTRA_DB_COLLECTION`.
+- **Seed only**: URL list in `scripts/trainingURLs/` (e.g. `generalLongevity.js`).

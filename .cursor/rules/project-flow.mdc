@@ -1,0 +1,69 @@
+---
+description: Smart Parrot – end-to-end flow (chat UI → API → OpenAI & Astra)
+alwaysApply: true
+---
+
+# Smart Parrot – Project Flow
+
+## What This App Does
+
+Smart Parrot is a **RAG chatbot**: the user asks questions; the app finds relevant scraped content via vector search (Astra DB), then OpenAI answers using that context. Training data is loaded by a one-off seed script that scrapes URLs, chunks text, embeds with OpenAI, and stores chunks + vectors in Astra.
+
+---
+
+## Flow 1: Chat (User Question → Answer)
+
+1. **UI** (`app/page.tsx`)
+   - User types in the form or clicks a suggestion.
+   - Form submit or suggestion click calls `sendMessage({ text })` from `useChat` (with `TextStreamChatTransport` pointing at `/api/chat`).
+   - `useChat` keeps `messages` (UIMessage[]) and `status`; we derive `isLoading` from status and render each message in a `Bubble`.
+
+2. **Request**
+   - `TextStreamChatTransport` POSTs to `app/api/chat/route.ts` with body: `{ id, messages, trigger, messageId }`. Each message is a **UIMessage** (id, role, parts with type/text).
+
+3. **API route** (`app/api/chat/route.ts`)
+   - Reads `messages` from the body and gets the **latest message text** via `getTextFromMessage()` (handles both `content` and `parts`).
+   - Calls **OpenAI Embeddings** with the latest message → gets a vector.
+   - **Astra DB**: `collection.find({}, { sort: { $vector: embedding }, limit: 10 })` → top 10 similar chunks by vector; builds `docContext` from `doc.content`.
+   - Builds a **system prompt** that includes `docContext` and the question.
+   - Converts all `messages` to OpenAI format (role + content) and calls **OpenAI Chat** (e.g. gpt-4o-mini) with `stream: true`.
+   - Returns a **plain text stream** (ReadableStream of encoded text) with `Content-Type: text/plain; charset=utf-8`.
+
+4. **UI (stream)**
+   - `TextStreamChatTransport` consumes the text stream and turns it into UIMessage chunks; `useChat` appends the assistant message and updates as chunks arrive. `Bubble` renders each message by reading text from `message.parts`.
+
+---
+
+## Flow 2: Seed (Training Data into Astra)
+
+1. **Entry**  
+   `npm run seed` → `ts-node scripts/loadDb.ts`.
+
+2. **Preflight**  
+   `checkOpenAIAccess()` – one OpenAI embedding call to validate API key and quota.
+
+3. **DB**  
+   `astraClient.db(ASTRA_API_ENDPOINT, { token })`; then `createCollection(ASTRA_DB_COLLECTION, { vector: { dimension: 1536, metric } })` (if needed).
+
+4. **Per URL** (from `scripts/trainingURLs/generalLongevity.js`):
+   - **Scrape**: `PuppeteerWebBaseLoader` → HTML, strip tags → raw text.
+   - **Split**: `RecursiveCharacterTextSplitter` (chunkSize 512, overlap 100) → chunks.
+   - **Embed**: batches of 25 chunks via OpenAI `text-embedding-3-small` with retries for 429.
+   - **Insert**: `collection.insertOne({ content: chunk, $vector: vector })` for each chunk.
+
+5. **Env**  
+   Seed and API both need: `OPENAI_API_KEY`, `ASTRA_API_ENDPOINT`, `ASTRA_DB_APPLICATION_TOKEN`, `ASTRA_DB_COLLECTION`. Seed uses `generalLongevity` URL list.
+
+---
+
+## Key Files
+
+| Role | Path |
+|------|------|
+| Chat UI | `app/page.tsx` |
+| Chat API | `app/api/chat/route.ts` |
+| Message bubble | `app/components/Bubble/Bubble.tsx` |
+| Seed script | `scripts/loadDb.ts` |
+| Training URLs | `scripts/trainingURLs/generalLongevity.js` |
+
+See `packages-and-types.mdc` for dependencies and types (UIMessage, transport, etc.).

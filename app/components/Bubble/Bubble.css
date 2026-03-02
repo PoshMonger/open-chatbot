@@ -12,7 +12,8 @@
 
 .bubble.user{
     border-radius: 20px 20px 0 20px;
-    background-color: #dbbd37;
+    background-color: #000000;
+    color: #ffffff;
     margin-left: auto;
     text-align: right;
 }
