@@ -1,0 +1,24 @@
+.bubble {
+
+    margin: 8px;
+    padding: 8px;
+    font-size: 16px;
+    border:none;
+    color: #000;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    width: 80%;
+    text-align: left;
+
+}
+
+.bubble.user{
+    border-radius: 20px 20px 0 20px;
+    background-color: #dbbd37;
+    margin-left: auto;
+}
+
+.bubble.assistant{
+    border-radius: 20px 20px 20px 0;
+    background-color: #ffffff;
+    margin-right: auto;
+}

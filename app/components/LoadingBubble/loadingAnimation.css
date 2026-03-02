@@ -1,15 +1,11 @@
 .loader {
     position: absolute;
-    top: calc(50% - 32px);
-    left: calc(50% - 32px);
+    top: calc(80% - 32px);
+    left: calc(12% - 32px);
     width: 64px;
     height: 64px;
     border-radius: 50%;
     perspective: 800px;
-    background-position:
-    0 0,
-    calc(100% / 3) 0,
-    calc(200% / 3) 0;
   }
   
   .inner {
