@@ -1,32 +1,41 @@
 "use client";
+
 import Image from "next/image";
+import { useState } from "react";
 import germanAmericanLogo from "./assets/german_american.png";
 import healthCareIcon from "./assets/healthcareicon.svg";
 import { useChat } from "@ai-sdk/react";
-import { Message } from "ai";
+import { TextStreamChatTransport } from "ai";
+import type { UIMessage } from "ai";
 import Bubble from "./components/Bubble/Bubble";
 import PromptSuggestionsRow from "./components/Bubble/PromptSuggestion/PromptSuggestionsRow";
 import LoadingAnimation from "./components/LoadingBubble/loadingAnimation";
 
 const Home = () => {
+  const [input, setInput] = useState("");
   const {
-    append,
-    isLoading,
+    sendMessage,
     messages,
-    input,
-    handleInputChange,
-    handleSubmit,
-  } = useChat();
+    status,
+    error,
+  } = useChat({
+    transport: new TextStreamChatTransport({ api: "/api/chat" }),
+  });
+  const isLoading = status === "streaming" || status === "submitted";
   const noMessages = !messages || messages.length === 0;
 
   const handlePromptClick = (prompt: string) => {
-    const msg = {
-      id: crypto.randomUUID(),
-      content: prompt,
-      role: "user",
-    };
-    append(msg);
+    sendMessage({ text: prompt });
   };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = input.trim();
+    if (!text) return;
+    sendMessage({ text });
+    setInput("");
+  };
+
   return (
     <main>
       <Image
@@ -46,21 +55,22 @@ const Home = () => {
           </>
         ) : (
           <>
-            {messages.map((message: Message, index: number) => (
-              <Bubble key={`message-${index}`} message={message} />
+            {messages.map((message: UIMessage, index: number) => (
+              <Bubble key={message.id ?? `message-${index}`} message={message} />
             ))}
             {isLoading && <LoadingAnimation />}
           </>
         )}
       </section>
+      {error && <p className="error">{error.message}</p>}
       <form onSubmit={handleSubmit}>
         <input
           className="question-box"
-          onChange={handleInputChange}
+          onChange={(e) => setInput(e.target.value)}
           value={input}
           placeholder="Ask me anything..."
         />
-        <input type="submit" />
+        <button type="submit">Send</button>
       </form>
     </main>
   );
