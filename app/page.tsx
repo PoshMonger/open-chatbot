@@ -4,7 +4,9 @@ import germanAmericanLogo from "./assets/german_american.png";
 import healthCareIcon from "./assets/healthcareicon.svg";
 import { useChat } from "@ai-sdk/react";
 import { Message } from "ai";
-
+import Bubble from "./components/Bubble";
+import PromptSuggestionsRow from "./components/PromptSuggestionsRow";
+import LoadingAnimation from "./components/LoadingBubble/loadingAnimation";
 const Home = () => {
   const {
     append,
@@ -14,7 +16,7 @@ const Home = () => {
     handleInputChange,
     handleSubmit,
   } = useChat();
-  const noMessages = true;
+  const noMessages = false;
   return (
     <main>
       <Image
@@ -28,13 +30,17 @@ const Home = () => {
         {noMessages ? (
           <>
             <p className="starter-text">
-              The Ultime place for learning about longevity and health.
+              The Ultimate place for learning about longevity and health.
             </p>
+            <br/>
+            <PromptSuggestionsRow />
           </>
         ) : (
           <>
+          <LoadingAnimation />
             <form onSubmit={handleSubmit}>
               <input
+              
                 className="question-box"
                 onChange={handleInputChange}
                 value={input}

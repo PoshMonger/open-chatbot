@@ -29,17 +29,16 @@ main {
   justify-content: center;
   border-radius: 10px;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  padding: 20px;
 }
 
 form {
-
-    height: 50px;
-    width: 100%;
-    display: flex;
-    border-top: 2px solid #ccc;
-    padding-top: 20px;
-    border-radius: 0 0 10px 10px;
-    overflow: hidden;
+  height: 50px;
+  width: 100%;
+  display: flex;
+  padding-top: 20px;
+  border-radius: 0 0 10px 10px;
+  overflow: hidden;
 }
 
 section {
@@ -58,22 +57,24 @@ section.populated {
   padding: 0 80x;
 }
 
-
 input.question-box {
-    width: 85%;
-    padding: 10px;
-    font-size: 16px;
-    color:#434343;
-    border: none;
+  width: 85%;
+  padding: 10px;
+  font-size: 16px;
+  color: #434343;
+  border: none;
 }
 
 input[type="submit"] {
-    width: 15%;
-    padding: 10px;
-    font-size: 15px;
-    color:#fff;
-    border: none;
-    cursor: pointer;
-    background-color: #000;
-   
+  width: 15%;
+  padding: 10px;
+  font-size: 15px;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  background-color: #000;
+}
+
+input:focus {
+  outline: none;
 }
