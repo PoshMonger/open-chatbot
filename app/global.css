@@ -40,7 +40,15 @@ form {
   border-radius: 0 0 10px 10px;
   overflow: hidden;
 }
-
+.submit-button{
+  width: 15%;
+  padding: 10px;
+  font-size: 15px;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  background-color: #000;
+}
 section {
   width: 100%;
 }

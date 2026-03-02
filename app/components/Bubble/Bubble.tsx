@@ -1,6 +1,6 @@
 import React from "react";
 import type { UIMessage } from "ai";
-
+import "./Bubble.css";
 function getMessageText(message: UIMessage): string {
   const parts = message.parts ?? [];
   return parts

@@ -70,7 +70,7 @@ const Home = () => {
           value={input}
           placeholder="Ask me anything..."
         />
-        <button type="submit">Send</button>
+        <button className="submit-button" type="submit">Send</button>
       </form>
     </main>
   );
